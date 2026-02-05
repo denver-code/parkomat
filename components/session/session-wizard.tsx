@@ -40,8 +40,8 @@ export function SessionWizard() {
         setStep(3)
     }
 
-    const handleLocationSelect = (location: ParkingLocation | null) => {
-        setData(prev => ({ ...prev, location, manual_max_stay_mins: null }))
+    const handleLocationSelect = (location: ParkingLocation | null, coords: { lat: number; lng: number } | null) => {
+        setData(prev => ({ ...prev, location, manual_max_stay_mins: null, userCoords: coords }))
         setStep(4)
     }
 
@@ -66,6 +66,12 @@ export function SessionWizard() {
             return
         }
 
+        // Strict Requirement: User coordinates are mandatory for ALL sessions (Car Location)
+        if (!finalData.userCoords) {
+            setError("Location coordinates are required. Please ensure location services are enabled.")
+            return
+        }
+
         setLoading(true)
         setError(null)
 
@@ -75,20 +81,17 @@ export function SessionWizard() {
             formData.append("car_id", finalData.car.id)
             formData.append("photo", finalData.photo)
 
+            // ALWAYS use the user's current coordinates for the car location
+            formData.append("lat", finalData.userCoords.lat.toString())
+            formData.append("lng", finalData.userCoords.lng.toString())
+
             // If we have a specific parking location selected
             if (finalData.location && finalData.location.id) {
                 formData.append("parking_location_id", finalData.location.id)
-                formData.append("lat", finalData.location.lat.toString())
-                formData.append("lng", finalData.location.lng.toString())
             }
-            // Fallback: If manual entry, we MUST have user coordinates (current location)
+            // Fallback: If manual entry
             else if (finalData.manual_max_stay_mins) {
-                if (!finalData.userCoords) {
-                    throw new Error("Location coordinates are required even for manual entry. Please ensure location services are enabled.")
-                }
                 formData.append("manual_max_stay_mins", finalData.manual_max_stay_mins.toString())
-                formData.append("lat", finalData.userCoords.lat.toString())
-                formData.append("lng", finalData.userCoords.lng.toString())
             }
 
             await api.post("/api/private/session", formData)

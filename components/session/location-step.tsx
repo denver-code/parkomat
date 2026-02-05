@@ -11,7 +11,7 @@ import { api } from "@/lib/api"
 import { formatDuration } from "@/lib/format"
 
 interface LocationStepProps {
-    onSelect: (location: ParkingLocation | null) => void;
+    onSelect: (location: ParkingLocation | null, coords: { lat: number; lng: number } | null) => void;
     onManual: (coords: { lat: number; lng: number } | null) => void;
 }
 
@@ -158,7 +158,7 @@ export function LocationStep({ onSelect, onManual }: LocationStepProps) {
                                                 key={loc.id}
                                                 variant="outline"
                                                 className="h-auto p-4 justify-start text-left flex flex-col items-start gap-1"
-                                                onClick={() => onSelect(loc)}
+                                                onClick={() => onSelect(loc, coords)}
                                             >
                                                 <div className="flex w-full justify-between items-start">
                                                     <div className="flex items-center gap-2 font-medium">
