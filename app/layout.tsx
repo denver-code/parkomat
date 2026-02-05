@@ -35,6 +35,7 @@ export default function RootLayout({
     <html lang="en" className={figtree.variable} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"
@@ -44,7 +45,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
-  
+
       </body>
     </html>
   );
