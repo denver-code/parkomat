@@ -9,7 +9,7 @@ export default function LogoutPage() {
   useEffect(() => {
     async function logout() {
       await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/private/auth/logout`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/public/auth/logout`,
         {
           method: "POST",
           credentials: "include",
