@@ -43,7 +43,7 @@ class ApiClient {
 
         // Check if response has content to parse
         const text = await response.text();
-        return text ? JSON.parse(text) : {};
+        return text ? JSON.parse(text) : {} as T;
     }
 
     get<T>(endpoint: string, options?: RequestOptions) {
