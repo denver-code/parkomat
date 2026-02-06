@@ -30,8 +30,8 @@ export function SessionWizard() {
     const totalSteps = 4
     const progress = (step / totalSteps) * 100
 
-    const handlePhotoNext = (photo: File) => {
-        setData(prev => ({ ...prev, photo }))
+    const handlePhotoNext = (photo: File, coords: { lat: number; lng: number } | null) => {
+        setData(prev => ({ ...prev, photo, userCoords: coords }))
         setStep(2)
     }
 
@@ -41,12 +41,12 @@ export function SessionWizard() {
     }
 
     const handleLocationSelect = (location: ParkingLocation | null, coords: { lat: number; lng: number } | null) => {
-        setData(prev => ({ ...prev, location, manual_max_stay_mins: null, userCoords: coords }))
+        setData(prev => ({ ...prev, location, manual_max_stay_mins: null, userCoords: coords || prev.userCoords }))
         setStep(4)
     }
 
     const handleManualEntry = (coords: { lat: number; lng: number } | null) => {
-        setData(prev => ({ ...prev, location: null, userCoords: coords }))
+        setData(prev => ({ ...prev, location: null, userCoords: coords || prev.userCoords }))
         setStep(4)
     }
 

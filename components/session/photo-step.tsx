@@ -7,7 +7,7 @@ import { Camera, Upload, X } from "lucide-react"
 import Image from "next/image"
 
 interface PhotoStepProps {
-    onNext: (photo: File) => void;
+    onNext: (photo: File, coords: { lat: number; lng: number } | null) => void;
     initialPhoto: File | null;
 }
 
@@ -15,6 +15,10 @@ export function PhotoStep({ onNext, initialPhoto }: PhotoStepProps) {
     const [preview, setPreview] = useState<string | null>(initialPhoto ? URL.createObjectURL(initialPhoto) : null)
     const [file, setFile] = useState<File | null>(initialPhoto)
     const inputRef = useRef<HTMLInputElement>(null)
+
+    const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
+    const [loadingLocation, setLoadingLocation] = useState(false)
+    const [locationError, setLocationError] = useState<string | null>(null)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0]
@@ -30,6 +34,32 @@ export function PhotoStep({ onNext, initialPhoto }: PhotoStepProps) {
         if (inputRef.current) {
             inputRef.current.value = ""
         }
+    }
+
+    const handleGetLocation = () => {
+        if (!navigator.geolocation) {
+            setLocationError("Geolocation is not supported")
+            return
+        }
+
+        setLoadingLocation(true)
+        setLocationError(null)
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setCoords({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                })
+                setLoadingLocation(false)
+            },
+            (err) => {
+                console.error("Geo error:", err)
+                setLocationError("Could not get location")
+                setLoadingLocation(false)
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        )
     }
 
     return (
@@ -76,11 +106,26 @@ export function PhotoStep({ onNext, initialPhoto }: PhotoStepProps) {
                         </div>
                     )}
 
+                    <div className="w-full flex flex-col gap-2">
+                        <div className="flex gap-2 w-full">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={handleGetLocation}
+                                disabled={loadingLocation}
+                            >
+                                {loadingLocation ? "Locating..." : (coords ? "📍 Location Saved" : "📍 Add Current Location")}
+                            </Button>
+                        </div>
+                        {locationError && <p className="text-xs text-destructive text-center">{locationError}</p>}
+                    </div>
+
                     <Button
                         className="w-full"
                         size="lg"
                         disabled={!file}
-                        onClick={() => file && onNext(file)}
+                        onClick={() => file && onNext(file, coords)}
                     >
                         Continue
                     </Button>
