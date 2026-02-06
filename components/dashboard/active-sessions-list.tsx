@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { api } from "@/lib/api"
+import { RemainingTimer } from "./remaining-timer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Loader2, Car, Clock, MapPin, AlertCircle, Timer } from "lucide-react"
@@ -26,6 +28,7 @@ interface ActiveSession {
 }
 
 export function ActiveSessionsList() {
+    const router = useRouter()
     const [sessions, setSessions] = useState<ActiveSession[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -104,7 +107,11 @@ export function ActiveSessionsList() {
         <div className="space-y-4">
             <h2 className="text-xl font-semibold tracking-tight">Active Sessions</h2>
             {sessions.map(session => (
-                <Card key={session.id} className="relative overflow-hidden border-primary/20 bg-primary/5">
+                <Card
+                    key={session.id}
+                    className="relative overflow-hidden border-primary/20 bg-primary/5 cursor-pointer transition-colors hover:bg-primary/10"
+                    onClick={() => router.push(`/session/${session.id}`)}
+                >
                     <div className="absolute top-0 right-0 p-2">
                         <span className="inline-flex items-center rounded-full border border-transparent bg-primary px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-primary-foreground animate-pulse">
                             Active
@@ -130,29 +137,14 @@ export function ActiveSessionsList() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex items-center gap-2 text-sm">
-                            <Timer className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">
-                                Ends {formatRelativeDate(session.end_time)} at {new Date(session.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {/* Live Timer */}
+                        <RemainingTimer endTime={session.end_time} />
+
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>
+                                Ends at {new Date(session.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                         </div>
-
-                        <Button
-                            className="w-full"
-                            variant="default"
-                            onClick={async () => {
-                                try {
-                                    await api.post(`/api/private/session/${session.id}/complete`)
-                                    // Remove from list optimistically
-                                    setSessions(prev => prev.filter(s => s.id !== session.id))
-                                } catch (err) {
-                                    console.error("Failed to complete session", err)
-                                    // Optionally show user error
-                                }
-                            }}
-                        >
-                            Finish
-                        </Button>
                     </CardContent>
                 </Card>
             ))}
