@@ -15,6 +15,7 @@ interface SessionDetails {
     status: string;
     start_time: string;
     end_time: string;
+    actual_end_time: string | null;
     photo_url: string;
     car: {
         license_plate: string;
@@ -167,6 +168,12 @@ export default function SessionDetailsPage() {
                             <span className="text-muted-foreground">Duration</span>
                             <span className="font-medium">{formatDuration(durationMins)}</span>
                         </div>
+                        {session.actual_end_time && (
+                            <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1 bg-muted/50 p-2 rounded">
+                                <CheckCircle className="h-3 w-3 text-green-600" />
+                                Ended manually on {new Date(session.actual_end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                        )}
                     </div>
                 </CardContent>
 
