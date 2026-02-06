@@ -13,6 +13,7 @@ import { formatDuration } from "@/lib/format"
 interface LocationStepProps {
     onSelect: (location: ParkingLocation | null, coords: { lat: number; lng: number } | null) => void;
     onManual: (coords: { lat: number; lng: number } | null) => void;
+    initialCoords: { lat: number; lng: number } | null;
 }
 
 interface ProximityResponse {
@@ -20,20 +21,19 @@ interface ProximityResponse {
     public: ParkingLocation[];
 }
 
-export function LocationStep({ onSelect, onManual }: LocationStepProps) {
+export function LocationStep({ onSelect, onManual, initialCoords }: LocationStepProps) {
     const [locations, setLocations] = useState<ParkingLocation[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
+    const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(initialCoords)
     const [viewMode, setViewMode] = useState<'proximity' | 'all'>('proximity')
 
-    // Get Geolocation
+    // Get Geolocation (only if not provided initially)
     useEffect(() => {
+        if (coords) return // Skip if we already have coords (e.g. from PhotoStep)
+
         if (!navigator.geolocation) {
             setError("Geolocation is not supported by your browser")
-            // Fallback to fetching all locations if geo fails?
-            // User requirement emphasizes proximity, but if no geo, we can't do proximity.
-            // Let's set viewMode to 'all' so the next effect fetches everything.
             setViewMode('all')
             setLoading(false)
             return
@@ -48,14 +48,14 @@ export function LocationStep({ onSelect, onManual }: LocationStepProps) {
             },
             (err) => {
                 // If geo denied, fallback to all
+                console.error("Geo error:", err)
                 setViewMode('all')
-                // We don't necessarily need to show an error if we fallback gracefully,
-                // but nice to let user know why they see 'all' immediately.
-                // setError("Unable to retrieve your location. Showing all locations.") 
                 setLoading(false)
-            }
+            },
+            // Reduce timeout to fail faster if stuck
+            { timeout: 5000, maximumAge: 60000 }
         )
-    }, [])
+    }, [initialCoords])
 
     // Fetch Locations (Proximity or All)
     useEffect(() => {

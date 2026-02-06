@@ -140,6 +140,7 @@ export function SessionWizard() {
                 <LocationStep
                     onSelect={handleLocationSelect}
                     onManual={handleManualEntry}
+                    initialCoords={data.userCoords}
                 />
             )}
 
