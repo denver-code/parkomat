@@ -3,7 +3,7 @@ export interface ParkingLocation {
     name: string;
     lat: number;
     lng: number;
-    max_stay: number;
+    max_stay?: number;
     owner_id: string;
     is_owner: boolean;
     is_public: boolean;

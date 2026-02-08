@@ -7,7 +7,7 @@ import { ArrowLeft, Car as CarIcon, Plus, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { api } from "@/lib/api"
-import { Car } from "@/components/session/steps/car-selection-step" // Reuse type or define new one
+import { Car } from "@/components/session/types"
 
 interface CarListResponse {
     cars: Car[]

@@ -1,4 +1,4 @@
-export function formatDuration(minutes: number): string {
+export function formatDuration(minutes: number | null | undefined): string {
     if (!minutes) return "0 mins";
 
     const hours = Math.floor(minutes / 60);

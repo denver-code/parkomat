@@ -8,14 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { api } from "@/lib/api"
 
-interface ParkingLocation {
-    id: string
-    name: string
-    lat: number
-    lng: number
-    max_stay?: number
-    is_public: boolean
-}
+import { ParkingLocation } from "@/components/session/types"
 
 export default function LocationsListPage() {
     const router = useRouter()
